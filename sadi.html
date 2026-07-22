@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Store | Next-Gen E-Commerce Application</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  
+  <style>
+    /* Dark Futuristic / Glassmorphism Theme Styles */
+    :root {
+      --bg-dark: #0a0c10;
+      --card-bg: rgba(22, 27, 34, 0.75);
+      --card-border: rgba(255, 255, 255, 0.125);
+      --accent-cyan: #00f2fe;
+      --accent-pink: #ff007f;
+      --accent-glow: linear-gradient(135deg, #00f2fe, #ff007f);
+      --text-main: #f0f6fc;
+      --text-muted: #8b949e;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(255, 0, 127, 0.08) 0%, transparent 40%);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .glass-card:hover {
+      border-color: rgba(0, 242, 254, 0.3);
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 242, 254, 0.15);
+    }
+
+    .btn-glow {
+      background: var(--accent-glow);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 50rem;
+      padding: 0.6rem 1.5rem;
+      transition: all 0.3s ease;
+      display: inline-block;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .btn-glow:hover {
+      color: #fff;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+      transform: scale(1.02);
+    }
+
+    .form-control, .form-select {
+      background-color: rgba(13, 17, 23, 0.8) !important;
+      border: 1px solid var(--card-border) !important;
+      color: #fff !important;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent-cyan) !important;
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.3) !important;
+    }
+
+    .animated-float {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .nav-pills .nav-link {
+      color: var(--text-muted);
+      border-radius: 30px;
+      padding: 8px 20px;
+      transition: all 0.3s;
+    }
+
+    .nav-pills .nav-link.active {
+      background: var(--accent-glow);
+      color: #fff;
+    }
+
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1055;
+    }
+
+    .badge-custom {
+      background: rgba(0, 242, 254, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: var(--accent-pink);
+      color: white;
+      border-radius: 50%;
+      padding: 0.25em 0.6em;
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar navbar-expand-lg sticky-top glass-card m-3 px-4">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white fw-bold fs-3 d-flex align-items-center gap-2" href="#" onclick="switchTab('store')">
+        <i class="bi bi-cpu text-info"></i> AURA<span class="text-info">STORE</span>
+      </a>
+      
+      <button class="navbar-toggler border-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon text-white"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 nav-pills">
+          <li class="nav-item">
+            <button class="nav-link active" id="btn-nav-store" onclick="switchTab('store')">
+              <i class="bi bi-shop me-1"></i> Store View
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="btn-nav-cart" onclick="switchTab('cart')">
+              <i class="bi bi-cart3 me-1"></i> Cart
+            </button>
+          </li>
+          <li class="nav-item d-none" id="nav-admin-link">
+            <button class="nav-link" id="btn-nav-admin" onclick="switchTab('admin')">
+              <i class="bi bi-speedometer2 me-1"></i> Admin Panel
+            </button>
+          </li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-3">
+          <div id="user-info-badge" class="d-none text-end me-2">
+            <small class="text-muted d-block" id="user-role-label">Customer</small>
+            <span class="fw-bold text-info" id="user-name-label">Sadia Imtiaz</span>
+          </div>
+
+          <button onclick="openCartModal()" class="btn btn-outline-light rounded-pill position-relative px-3">
+            <i class="bi bi-bag-check me-1"></i> Cart
+            <span class="cart-badge" id="cart-count">0</span>
+          </button>
+
+          <div id="auth-buttons">
+            <button onclick="switchTab('login')" id="btn-login-view" class="btn-glow">Login / Register</button>
+            <button onclick="logout()" id="btn-logout" class="btn btn-outline-danger rounded-pill d-none">
+              <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="container my-4 flex-grow-1">
+
+    <!-- 1. STORE FRONT / PRODUCTS VIEW -->
+    <section id="view-store" class="tab-view">
+      <div class="text-center my-5 py-3">
+        <h1 class="display-3 fw-bold mb-3 animated-float">
+          Discover <span style="background: var(--accent-glow); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Future-Grade</span> Products
+        </h1>
+        <p class="text-muted fs-5 col-md-8 mx-auto">
+          APTURA TECH SOLUTIONS Internship Submission — Full-Stack Single-Page E-Commerce System with Dynamic PHP/MySQL Logic simulation in JS & Storage.
+        </p>
+      </div>
+
+      <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap" id="category-filters">
+        <button class="btn btn-sm btn-outline-info active rounded-pill px-3" onclick="filterCategory('all', this)">All Categories</button>
+        <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="filterCategory(1, this)">Electronics</button>
+        <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="filterCategory(2, this)">Fashion</button>
+        <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="filterCategory(3, this)">Smart Living</button>
+      </div>
+
+      <div class="row g-4" id="products-grid">
+        <!-- Dynamically rendered by Javascript -->
+      </div>
+    </section>
+
+    <!-- 2. LOGIN / AUTHENTICATION VIEW -->
+    <section id="view-login" class="tab-view d-none">
+      <div class="row justify-content-center align-items-center my-5">
+        <div class="col-md-5">
+          <div class="glass-card p-5">
+            <h2 class="fw-bold text-center mb-4 text-info">AURA LOGIN</h2>
+            
+            <div id="login-alert" class="alert alert-danger py-2 d-none"></div>
+
+            <form id="login-form" onsubmit="handleLogin(event)">
+              <div class="mb-3">
+                <label class="form-label text-muted">Email Address</label>
+                <input type="email" id="login-email" class="form-control" placeholder="admin@aptura.com" required>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label text-muted">Password</label>
+                <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+              </div>
+
+              <button type="submit" class="btn-glow w-100 border-0">Sign In</button>
+            </form>
+
+            <div class="mt-4 pt-3 border-top border-secondary text-center small text-muted">
+              <p class="mb-1"><strong>Quick Demo Credentials:</strong></p>
+              <div class="d-flex justify-content-center gap-2 mt-2">
+                <button class="btn btn-sm btn-outline-light" onclick="fillCredentials('admin@aptura.com', 'admin123')">Fill Admin</button>
+                <button class="btn btn-sm btn-outline-light" onclick="fillCredentials('user@aptura.com', 'admin123')">Fill Customer</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. CART & CHECKOUT VIEW -->
+    <section id="view-cart" class="tab-view d-none">
+      <div class="row justify-content-center my-4">
+        <div class="col-lg-8">
+          <div class="glass-card p-4 mb-4">
+            <h3 class="text-info fw-bold mb-3"><i class="bi bi-cart3 me-2"></i> Your Shopping Cart</h3>
+            <div id="cart-items-list">
+              <!-- Cart items dynamic list -->
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="glass-card p-4">
+            <h4 class="text-white fw-bold mb-3">Order Summary</h4>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Subtotal</span>
+              <span id="cart-subtotal" class="fw-bold">$0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Shipping</span>
+              <span class="text-success fw-bold">FREE</span>
+            </div>
+            <hr class="border-secondary my-3">
+            <div class="d-flex justify-content-between mb-4 fs-5 fw-bold">
+              <span>Total</span>
+              <span id="cart-total" class="text-info">$0.00</span>
+            </div>
+
+            <h5 class="text-white mb-3">Checkout Details</h5>
+            <form id="checkout-form" onsubmit="handleCheckout(event)">
+              <div class="mb-4">
+                <label class="form-label text-muted">Select Payment Method</label>
+                <select id="payment-method" class="form-select" required>
+                  <option value="Cash on Delivery">Cash on Delivery</option>
+                  <option value="JazzCash (Demo)">JazzCash (Demo)</option>
+                  <option value="EasyPaisa (Demo)">EasyPaisa (Demo)</option>
+                  <option value="Credit Card (Fake)">Credit Card</option>
+                </select>
+              </div>
+
+              <button type="submit" id="btn-place-order" class="btn-glow w-100 border-0">
+                <i class="bi bi-credit-card me-1"></i> Complete Order
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. ADMIN DASHBOARD VIEW -->
+    <section id="view-admin" class="tab-view d-none">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-info fw-bold"><i class="bi bi-speedometer2 me-2"></i> Executive Admin Control Panel</h2>
+        <button onclick="switchTab('store')" class="btn btn-outline-light">Back to Store</button>
+      </div>
+
+      <div class="row g-4 mb-5">
+        <div class="col-md-3">
+          <div class="glass-card p-4 text-center">
+            <i class="bi bi-people fs-1 text-info"></i>
+            <h5 class="text-muted mt-2 fs-6">Registered Users</h5>
+            <h2 class="fw-bold text-white" id="stat-users">0</h2>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="glass-card p-4 text-center">
+            <i class="bi bi-box-seam fs-1 text-warning"></i>
+            <h5 class="text-muted mt-2 fs-6">Active Products</h5>
+            <h2 class="fw-bold text-white" id="stat-products">0</h2>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="glass-card p-4 text-center">
+            <i class="bi bi-cart-check fs-1 text-success"></i>
+            <h5 class="text-muted mt-2 fs-6">Orders Placed</h5>
+            <h2 class="fw-bold text-white" id="stat-orders">0</h2>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="glass-card p-4 text-center">
+            <i class="bi bi-currency-dollar fs-1 text-danger"></i>
+            <h5 class="text-muted mt-2 fs-6">Gross Revenue</h5>
+            <h2 class="fw-bold text-white" id="stat-revenue">$0.00</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card p-4">
+        <h4 class="fw-bold mb-3 text-white"><i class="bi bi-receipt me-2"></i> Recent Store Orders</h4>
+        <div class="table-responsive">
+          <table class="table table-dark table-hover table-borderless align-middle mb-0">
+            <thead>
+              <tr class="border-bottom border-secondary text-muted">
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="recent-orders-table">
+              <!-- Orders injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer mt-auto py-3 text-center text-muted border-top border-secondary">
+    <div class="container">
+      <small>Aura Store &copy; 2026 Aptura Tech Solutions — Built by Sadia Imtiaz</small>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const DB = {
+      users: [
+        { user_id: 1, name: "Aptura Admin", email: "admin@aptura.com", password: "admin123", role: "admin", phone: "03001234567", address: "Islamabad, Pakistan" },
+        { user_id: 2, name: "Sadia Imtiaz", email: "user@aptura.com", password: "admin123", role: "customer", phone: "03119876543", address: "Rawalpindi, Pakistan" }
+      ],
+      categories: [
+        { category_id: 1, category_name: "Electronics", description: "High tech gadgets and next-gen hardware" },
+        { category_id: 2, category_name: "Fashion", description: "Modern aesthetic wear and accessories" },
+        { category_id: 3, category_name: "Smart Living", description: "Automated home devices" }
+      ],
+      products: [
+        { product_id: 1, category_id: 1, name: "Aura Wireless Headphones", description: "Studio-grade noise cancelling wireless headset", price: 199.99, stock: 45, status: "active" },
+        { product_id: 2, category_id: 1, name: "CyberBook Pro M3", description: "Extreme performance laptop for developers and creators", price: 1499.99, stock: 12, status: "active" },
+        { product_id: 3, category_id: 2, name: "Neon Cyber Hoodie", description: "Ultra-soft premium futuristic streetwear", price: 79.99, stock: 85, status: "active" },
+        { product_id: 4, category_id: 3, name: "Smart Ambient LED Sphere", description: "App-controlled customizable RGB lighting", price: 49.99, stock: 30, status: "active" }
+      ],
+      orders: [
+        { order_id: 101, user_id: 2, name: "Sadia Imtiaz", total_amount: 199.99, payment_method: "JazzCash (Demo)", payment_status: "completed", order_status: "Confirmed", created_at: "2026-07-20 14:32" },
+        { order_id: 102, user_id: 2, name: "Sadia Imtiaz", total_amount: 129.98, payment_method: "Cash on Delivery", payment_status: "completed", order_status: "Delivered", created_at: "2026-07-21 09:15" }
+      ]
+    };
+
+    let currentUser = null;
+    let cart = [];
+    let activeCategory = 'all';
+
+    document.addEventListener("DOMContentLoaded", function() {
+      renderProducts();
+      updateCartUI();
+      updateAdminDashboard();
+    });
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-view').forEach(el => el.classList.add('d-none'));
+      document.querySelectorAll('.nav-pills .nav-link').forEach(el => el.classList.remove('active'));
+
+      if (tabName === 'store') {
+        document.getElementById('view-store').classList.remove('d-none');
+        document.getElementById('btn-nav-store').classList.add('active');
+        renderProducts();
+      } else if (tabName === 'login') {
+        document.getElementById('view-login').classList.remove('d-none');
+      } else if (tabName === 'cart') {
+        document.getElementById('view-cart').classList.remove('d-none');
+        document.getElementById('btn-nav-cart').classList.add('active');
+        renderCartView();
+      } else if (tabName === 'admin') {
+        if (!currentUser || currentUser.role !== 'admin') {
+          showToast("Access Denied: Admin authorization required.", "danger");
+          switchTab('login');
+          return;
+        }
+        document.getElementById('view-admin').classList.remove('d-none');
+        document.getElementById('btn-nav-admin').classList.add('active');
+        updateAdminDashboard();
+      }
+    }
+
+    function openCartModal() {
+      switchTab('cart');
+    }
+
+    function showToast(message, type = "info") {
+      const container = document.getElementById('toast-container');
+      const toastEl = document.createElement('div');
+      toastEl.className = `toast align-items-center text-white bg-${type === 'danger' ? 'danger' : type === 'success' ? 'success' : 'info'} border-0 show`;
+      toastEl.setAttribute('role', 'alert');
+      toastEl.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">${message}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      `;
+      container.appendChild(toastEl);
+      setTimeout(() => { toastEl.remove(); }, 3500);
+    }
+
+    function fillCredentials(email, password) {
+      document.getElementById('login-email').value = email;
+      document.getElementById('login-password').value = password;
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      const alertBox = document.getElementById('login-alert');
+
+      const user = DB.users.find(u => u.email === email && u.password === password);
+
+      if (user) {
+        currentUser = user;
+        alertBox.classList.add('d-none');
+        
+        document.getElementById('user-info-badge').classList.remove('d-none');
+        document.getElementById('user-name-label').textContent = user.name;
+        document.getElementById('user-role-label').textContent = user.role.toUpperCase();
+        
+        document.getElementById('btn-login-view').classList.add('d-none');
+        document.getElementById('btn-logout').classList.remove('d-none');
+
+        if (user.role === 'admin') {
+          document.getElementById('nav-admin-link').classList.remove('d-none');
+          showToast(`Welcome Admin, ${user.name}!`, "success");
+          switchTab('admin');
+        } else {
+          document.getElementById('nav-admin-link').classList.add('d-none');
+          showToast(`Welcome back, ${user.name}!`, "success");
+          switchTab('store');
+        }
+      } else {
+        alertBox.textContent = "Invalid email or password!";
+        alertBox.classList.remove('d-none');
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      cart = [];
+      document.getElementById('user-info-badge').classList.add('d-none');
+      document.getElementById('btn-login-view').classList.remove('d-none');
+      document.getElementById('btn-logout').classList.add('d-none');
+      document.getElementById('nav-admin-link').classList.add('d-none');
+      updateCartUI();
+      showToast("Logged out successfully.", "info");
+      switchTab('store');
+    }
+
+    function filterCategory(catId, btn) {
+      activeCategory = catId;
+      document.querySelectorAll('#category-filters button').forEach(b => b.classList.remove('active', 'btn-info'));
+      document.querySelectorAll('#category-filters button').forEach(b => b.classList.add('btn-outline-info'));
+      btn.classList.add('active');
+      renderProducts();
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('products-grid');
+      grid.innerHTML = '';
+
+      let filtered = DB.products.filter(p => p.status === 'active');
+      if (activeCategory !== 'all') {
+        filtered = filtered.filter(p => p.category_id === parseInt(activeCategory));
+      }
+
+      filtered.forEach(p => {
+        const cat = DB.categories.find(c => c.category_id === p.category_id);
+        const col = document.createElement('div');
+        col.className = 'col-md-4 col-lg-3';
+        col.innerHTML = `
+          <div class="glass-card product-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+              <span class="badge badge-custom mb-2">${cat ? cat.category_name : 'General'}</span>
+              <h4 class="fw-bold text-white mb-2 fs-5">${p.name}</h4>
+              <p class="text-muted small">${p.description}</p>
+            </div>
+            <div>
+              <div class="d-flex justify-content-between align-items-center my-3">
+                <span class="fs-4 fw-bold text-info">$${p.price.toFixed(2)}</span>
+                <span class="small text-muted"><i class="bi bi-box me-1"></i>Stock: ${p.stock}</span>
+              </div>
+              <button onclick="addToCart(${p.product_id})" class="btn-glow w-100 text-center border-0">
+                <i class="bi bi-cart-plus me-1"></i> Add To Cart
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(col);
+      });
+    }
+
+    function addToCart(productId) {
+      if (!currentUser) {
+        showToast("Please login to add items to your cart.", "danger");
+        switchTab('login');
+        return;
+      }
+
+      const product = DB.products.find(p => p.product_id === productId);
+      if (!product) return;
+
+      const existingItem = cart.find(item => item.product_id === productId);
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        cart.push({
+          product_id: product.product_id,
+          name: product.name,
+          price: product.price,
+          quantity: 1
+        });
+      }
+
+      updateCartUI();
+      showToast(`${product.name} added to your cart!`, "success");
+    }
+
+    function updateCartUI() {
+      const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cart-count').textContent = totalCount;
+    }
+
+    function updateQuantity(productId, delta) {
+      const item = cart.find(i => i.product_id === productId);
+      if (item) {
+        item.quantity += delta;
+        if (item.quantity <= 0) {
+          cart = cart.filter(i => i.product_id !== productId);
+        }
+      }
+      updateCartUI();
+      renderCartView();
+    }
+
+    function renderCartView() {
+      const listContainer = document.getElementById('cart-items-list');
+      listContainer.innerHTML = '';
+
+      if (cart.length === 0) {
+        listContainer.innerHTML = `
+          <div class="text-center py-5">
+            <i class="bi bi-cart-x fs-1 text-muted"></i>
+            <p class="text-muted mt-2">Your cart is currently empty.</p>
+            <button onclick="switchTab('store')" class="btn btn-outline-info btn-sm rounded-pill mt-2">Browse Store</button>
+          </div>
+        `;
+        document.getElementById('cart-subtotal').textContent = '$0.00';
+        document.getElementById('cart-total').textContent = '$0.00';
+        return;
+      }
+
+      let grandTotal = 0;
+
+      cart.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        grandTotal += itemTotal;
+
+        const row = document.createElement('div');
+        row.className = 'd-flex align-items-center justify-content-between p-3 mb-2 border-bottom border-secondary';
+        row.innerHTML = `
+          <div>
+            <h6 class="mb-0 text-white">${item.name}</h6>
+            <small class="text-info">$${item.price.toFixed(2)} each</small>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${item.product_id}, -1)">-</button>
+            <span class="fw-bold px-2">${item.quantity}</span>
+            <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${item.product_id}, 1)">+</button>
+          </div>
+          <div class="text-end" style="min-width: 80px;">
+            <span class="fw-bold text-white">$${itemTotal.toFixed(2)}</span>
+          </div>
+        `;
+        listContainer.appendChild(row);
+      });
+
+      document.getElementById('cart-subtotal').textContent = `$${grandTotal.toFixed(2)}`;
+      document.getElementById('cart-total').textContent = `$${grandTotal.toFixed(2)}`;
+    }
+
+    function handleCheckout(event) {
+      event.preventDefault();
+
+      if (!currentUser) {
+        showToast("Please login to complete your order.", "danger");
+        switchTab('login');
+        return;
+      }
+
+      if (cart.length === 0) {
+        showToast("Your cart is empty!", "danger");
+        return;
+      }
+
+      const paymentMethod = document.getElementById('payment-method').value;
+      const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const newOrderId = 100 + DB.orders.length + 1;
+
+      const newOrder = {
+        order_id: newOrderId,
+        user_id: currentUser.user_id,
+        name: currentUser.name,
+        total_amount: totalAmount,
+        payment_method: paymentMethod,
+        payment_status: "completed",
+        order_status: "Confirmed",
+        created_at: new Date().toISOString().replace('T', ' ').substring(0, 16)
+      };
+
+      DB.orders.unshift(newOrder);
+
+      cart = [];
+      updateCartUI();
+      renderCartView();
+
+      showToast(`Order #${newOrderId} placed successfully via ${paymentMethod}!`, "success");
+    }
+
+    function updateAdminDashboard() {
+      document.getElementById('stat-users').textContent = DB.users.length;
+      document.getElementById('stat-products').textContent = DB.products.filter(p => p.status === 'active').length;
+      document.getElementById('stat-orders').textContent = DB.orders.length;
+
+      const totalRevenue = DB.orders.reduce((sum, o) => sum + o.total_amount, 0);
+      document.getElementById('stat-revenue').textContent = `$${totalRevenue.toFixed(2)}`;
+
+      const tableBody = document.getElementById('recent-orders-table');
+      tableBody.innerHTML = '';
+
+      DB.orders.forEach(o => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><span class="fw-bold text-info">#${o.order_id}</span></td>
+          <td>${o.name}</td>
+          <td class="fw-bold">$${o.total_amount.toFixed(2)}</td>
+          <td><span class="badge bg-secondary">${o.payment_method}</span></td>
+          <td><span class="badge bg-success">${o.order_status}</span></td>
+          <td class="text-muted small">${o.created_at}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>
